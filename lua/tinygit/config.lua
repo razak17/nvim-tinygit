@@ -136,6 +136,24 @@ function M.setup(userConfig)
 		local msg = ('Border type "none" is not supported, falling back to %q.'):format(fallback)
 		require("tinygit.shared.utils").notify(msg, "warn")
 	end
+
+	-- VALIDATE `context` > 0 (0 is not supported without `--unidiff-zero`)
+	-- DOCS https://git-scm.com/docs/git-apply#Documentation/git-apply.txt---unidiff-zero
+	-- However, it is discouraged in the git manual, and `git apply` tends to
+	-- fail quite often, probably as line count changes are not accounted for
+	-- when splitting up changes into hunks in `getHunksFromDiffOutput`.
+	-- Using context=1 works, but has the downside of not being 1:1 the same
+	-- hunks as with `gitsigns.nvim`. Since many small hunks are actually abit
+	-- cumbersome, and since it's discouraged by git anyway, we simply disallow
+	-- context=0 for now.
+	if M.config.stage.contextSize < 1 then M.config.stage.contextSize = 1 end
+
+	-- `preview_width` is only supported by `horizontal` & `cursor` strategies,
+	-- see https://github.com/chrisgrieser/nvim-scissors/issues/28
+	local strategy = M.config.stage.telescopeOpts.layout_strategy
+	if strategy ~= "horizontal" and strategy ~= "cursor" then
+		M.config.stage.telescopeOpts.layout_config.preview_width = nil
+	end
 end
 
 --------------------------------------------------------------------------------
