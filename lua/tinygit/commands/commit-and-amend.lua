@@ -398,7 +398,10 @@ function M.smartCommit(opts, msgNeedsFixing)
 
 	-- INFO explicitly using dressing's `input` instead of `vim.ui.input` allows
 	-- the user to use a different input plugin like `snacks` for the rest
-	require("dressing.input")({ prompt = prompt, default = prefillMsg }, function(commitMsg)
+    vim.ui.input({
+      prompt = prompt,
+      default = prefillMsg,
+    }, function(commitMsg)
 		closeNotifications()
 
 		-- abort
@@ -498,7 +501,10 @@ function M.amendOnlyMsg(opts, msgNeedsFixing)
 	setupInputField()
 	local icon = require("tinygit.config").config.appearance.mainIcon
 	local prompt = vim.trim(icon .. " Amend only message")
-	require("dressing.input")({ prompt = prompt, default = msgNeedsFixing }, function(commitMsg)
+    vim.ui.input({
+      prompt = prompt,
+      default = msgNeedsFixing,
+    }, function(commitMsg)
 		if not commitMsg then return end -- aborted input modal
 		local validMsg, processedMsg = processCommitMsg(commitMsg)
 		if not validMsg then -- if msg invalid, run again to fix the msg
